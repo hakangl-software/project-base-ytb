@@ -31,7 +31,9 @@ app.use((req, res, next ) => {
   console.log("Ben app.js te tanımlanan bir middleware'im");
   next();
 });
+ // ROUTERLARIN TANIMLADIĞI YER
 
+ 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 

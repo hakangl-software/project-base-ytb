@@ -1,5 +1,5 @@
 var express = require('express');
-const config = require('../config');
+const config = require('../config'); // normalde '../config/index.js' tir. Ancak bu şekilde yazınca da otomatik index dosyasına gidiyor
 var router = express.Router();
 
 

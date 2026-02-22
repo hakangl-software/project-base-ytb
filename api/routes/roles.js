@@ -1,39 +1,40 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
 /** @type {import("mongoose").Model} */
-const Categories = require("../db/models/Categories"); //Burada Model içindeki Categories dosyasını import ettik.
+const Roles = require("../db/models/Roles");
+const RolePrivieges = require("../db/models/RolePrivileges");
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
 const Enum = require("../config/Enum");
 
-// GET Categories List için
-router.get("/", async (req, res, next) => {
+// GET Role List için
+router.get("/", async (req, res) => {
   try {
-    let categories = await Categories.find({});
-    res.json.status(errorsResponse.code)(Response.successResponse(categories));
+    let roles = await Roles.find({});
+    res.json(Response.successResponse(roles));
   } catch (err) {
     let errorsResponse = Response.errorsResponse(err);
-    res.json(Response.errorsResponse(err));
+    res.status(errorsResponse.code).json(errorsResponse);
   }
 });
 
-// POST add Categories için
+// POST add Role için
 router.post("/add", async (req, res) => {
   let body = req.body;
   try {
-    if (!body.name)
+    if (!body.role_name)
       throw new CustomError(
         Enum.HTTP_CODES.BAD_REQUEST,
         "Validation Error!",
-        "name fields must be filled",
+        "role_name fields must be filled",
       );
 
-    let category = new Categories({
-      name: body.name,
+    let role = new Roles({
+      role_name: body.role_name,
       is_active: true,
       created_by: req.user?.id,
     });
-    await category.save();
+    await role.save();
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorsResponse = Response.errorsResponse(err);
@@ -41,7 +42,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// POST update Categories için
+// POST update Role için
 router.post("/update", async (req, res) => {
   let body = req.body;
   try {
@@ -52,10 +53,10 @@ router.post("/update", async (req, res) => {
         "_id fields must be filled",
       );
     let updates = {};
-    if (body.name) updates.name = body.name;
+    if (body.role_name) updates.role_name = body.role_name;
     if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
-    await Categories.updateOne({ _id: body._id }, updates);
+    await Roles.updateOne({ _id: body._id }, updates);
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
@@ -64,10 +65,9 @@ router.post("/update", async (req, res) => {
   }
 });
 
-// POST delete Categories için
+// POST delete Role için
 router.post("/delete", async (req, res) => {
   let body = req.body;
-
   try {
     if (!body._id)
       throw new CustomError(
@@ -75,8 +75,7 @@ router.post("/delete", async (req, res) => {
         "Validation Error!",
         "_id fields must be filled",
       );
-
-    await Categories.deleteOne({ _id: body._id });
+    await Roles.deleteOne({ _id: body._id });
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorsResponse = Response.errorsResponse(err);

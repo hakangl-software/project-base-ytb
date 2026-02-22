@@ -1,5 +1,5 @@
-module.export = {
-  HTTP_CODES: {
+module.exports = {
+  HTTP_CODES:{
     OK: 200,
     CREATED: 201,
     NO_CONTENT: 204,
@@ -17,6 +17,7 @@ module.export = {
     UNPROCESSIBLE_ENTITY: 422,
     TOO_MANY_REQUESTS: 429,
     INT_SERVER_ERROR: 500,
-    BAD_GATEWAY: 502,
-  },
-};
+    BAD_GATEWAY: 502
+  }
+  };
+

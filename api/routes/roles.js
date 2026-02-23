@@ -6,6 +6,7 @@ const RolePrivieges = require("../db/models/RolePrivileges");
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
 const Enum = require("../config/Enum");
+const role_privileges = require("../config/role_prirvileges");
 
 // GET Role List için
 router.get("/", async (req, res) => {
@@ -22,13 +23,10 @@ router.get("/", async (req, res) => {
 router.post("/add", async (req, res) => {
   let body = req.body;
   try {
-    if (!body.role_name)
-      throw new CustomError(
-        Enum.HTTP_CODES.BAD_REQUEST,
-        "Validation Error!",
-        "role_name fields must be filled",
-      );
-
+    if (!body.role_name)throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!","role_name fields must be filled");
+    if(!body.permissions || !Array.isArray(body.permissions) || body.permissions.length==0) {
+      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!","permissions fields must be an Array");
+    }
     let role = new Roles({
       role_name: body.role_name,
       is_active: true,
@@ -81,6 +79,10 @@ router.post("/delete", async (req, res) => {
     let errorsResponse = Response.errorsResponse(err);
     res.status(errorsResponse.code).json(errorsResponse);
   }
+});
+
+router.get("/role_privileges", async (req,res) => {
+  res.json(role_privileges);
 });
 
 module.exports = router;

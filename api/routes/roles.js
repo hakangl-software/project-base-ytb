@@ -23,36 +23,70 @@ router.get("/", async (req, res) => {
 router.post("/add", async (req, res) => {
   let body = req.body;
   try {
-    if (!body.role_name)throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!","role_name fields must be filled");
-    if(!body.permissions || !Array.isArray(body.permissions) || body.permissions.length==0) {
-      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!","permissions fields must be an Array");
-    }
+    if (!body.role_name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!","role_name fields must be filled");
+    if(!body.permissions || !Array.isArray(body.permissions) || body.permissions.length==0) {throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!","permissions fields must be an Array");}
+    
     let role = new Roles({
       role_name: body.role_name,
       is_active: true,
       created_by: req.user?.id,
     });
+
     await role.save();
+
+    for (let i=0; i<body.permissions.length; i++){
+      let priv = new RolePrivieges({
+        role_id: role._id,
+        permission: body.permission[i],
+        created_by: req.user?.id
+      });
+      await priv.save(); 
+    }
+
     res.json(Response.successResponse({ success: true }));
+
   } catch (err) {
     let errorsResponse = Response.errorsResponse(err);
     res.status(errorsResponse.code).json(Response.errorsResponse(err));
   }
 });
 
+
 // POST update Role için
 router.post("/update", async (req, res) => {
   let body = req.body;
   try {
-    if (!body._id)
-      throw new CustomError(
-        Enum.HTTP_CODES.BAD_REQUEST,
-        "Validation Error!",
-        "_id fields must be filled",
-      );
+
+    if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id fields must be filled");
+
     let updates = {};
+
     if (body.role_name) updates.role_name = body.role_name;
     if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
+    
+    if(body.permissions && Array.isArray(body.permissions) && body.permissions.length > 0) {
+      
+      let permissions = await RolePrivieges.find({role_id: body._id});
+
+      let removedPermissions = permissions.filter(x => !body.permissions.includes(x.permission));
+      let newPermissions = body.permissions.filter(x =>!permissions.map(p => p.permission).includes(x));
+
+      if (removedPermissions.length > 0){
+        await RolePrivieges.remove({_id: {$in: removedPermissions.map(x => x._id)}});
+      }
+
+      if(newPermissions.length >0) {
+         for (let i=0; i<newPermissions.length; i++){
+            let priv = new RolePrivieges({
+                role_id: body._id,
+                permission: newPermissions[i],
+                created_by: req.user?.id
+            });
+            await priv.save(); 
+        }
+      }   
+    
+    }
 
     await Roles.updateOne({ _id: body._id }, updates);
 
@@ -62,6 +96,7 @@ router.post("/update", async (req, res) => {
     res.status(errorsResponse.code).json(errorsResponse);
   }
 });
+
 
 // POST delete Role için
 router.post("/delete", async (req, res) => {

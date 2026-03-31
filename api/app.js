@@ -1,3 +1,5 @@
+if(process.env.NODE_ENV != "production"); // Hangi env dosyasını kullanması gerektiği kontrolü yapılıyor.
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');

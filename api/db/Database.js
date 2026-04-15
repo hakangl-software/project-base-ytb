@@ -11,8 +11,16 @@ class Database {
     };
     // Mongodb bağlantısı sağlanacak
     async connect(options) {
+        try {
+             console.log("DB Connecting..")
         let db = await mongoose.connect(options.CONNECTION_STRING);
         this.mongoConnection = db;
+
+        console.log("DB Connected.")
+        } catch (err) {
+            console.log(err);
+            process.exit(1);
+        }
     }
 }
 module.exports = Database;

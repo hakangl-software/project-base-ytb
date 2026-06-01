@@ -23,9 +23,9 @@ app.use((req, res, next)=>{
   next();
 })
 
-app.use('/', require('./routes/index')); // http://localhost:3000
-// app.use('/users', require('./routes/users')); // http://localhost:3000/users
-// app.use('/auditlogs', require('./routes/auditlogs')); // http://localhost:3000/auditlogs
+app.use('/api', require('./routes/index')); // http://localhost:3000
+//app.use('/users', require('./routes/users')); // http://localhost:3000/users
+//app.use('/auditlogs', require('./routes/auditlogs')); // http://localhost:3000/auditlogs
 // app.use('/categories', require('./routes/categories')); // http://localhost:3000/categories
 
 
